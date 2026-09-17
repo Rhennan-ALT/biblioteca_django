@@ -1,57 +1,199 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acervo da Biblioteca</title>
+    <style>
+        :root {
+            --primary: #8747b3;
+            --primary-hover: #9669a8;
+            --bg: #291828;
+            --card-bg: #e3b5e7;
+            --text: #ffffff;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2.5rem 1rem;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        /* Form / Cards de Filtro */
+        form {
+            background: var(--card-bg);
+            padding: 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        form input[type="text"],
+        form select {
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            background-color: #fff;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        form input[type="text"] {
+            flex: 2;
+            min-width: 220px;
+        }
+
+        form select {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        form input:focus,
+        form select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        form button {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        form button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Tabela Estruturada */
+        .table-wrapper {
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2.5rem 1rem;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Acervo da Biblioteca</h1>
+<div class="container">
+    <h1>Acervo da Biblioteca</h1>
 
-<form method="get">
-    <input type="text" name="nome" placeholder="Buscar por título" value="{{ filtro_nome }}">
+    <form method="get">
+        <input type="text" name="nome" placeholder="Buscar por título..." value="{{ filtro_nome }}">
 
-    <select name="tipo">
-        <option value="">Todos os tipos</option>
-        {% for valor, rotulo in tipos %}
-            <option value="{{ valor }}" {% if valor == filtro_tipo %}selected{% endif %}>{{ rotulo }}</option>
-        {% endfor %}
-    </select>
+        <select name="tipo">
+            <option value="">Todos os tipos</option>
+            {% for valor, rotulo in tipos %}
+                <option value="{{ valor }}" {% if valor == filtro_tipo %}selected{% endif %}>{{ rotulo }}</option>
+            {% endfor %}
+        </select>
 
-    <select name="categoria">
-        <option value="">Todas as categorias</option>
-        {% for valor, rotulo in categorias %}
-            <option value="{{ valor }}" {% if valor == filtro_categoria %}selected{% endif %}>{{ rotulo }}</option>
-        {% endfor %}
-    </select>
+        <select name="categoria">
+            <option value="">Todas as categorias</option>
+            {% for valor, rotulo in categorias %}
+                <option value="{{ valor }}" {% if valor == filtro_categoria %}selected{% endif %}>{{ rotulo }}</option>
+            {% endfor %}
+        </select>
 
-    <button type="submit">Buscar</button>
-</form>
+        <button type="submit">Buscar</button>
+    </form>
 
-
-<table>
-    <tr>
-        <th>Título</th>
-        <th>Autor</th>
-        <th>Ano</th>
-        <th>Tipo</th>
-        <th>Categoria</th>
-        <th>Disponível</th>
-    </tr>
-    {% for livro in livros %}
-    <tr>
-        <td>{{ livro.titulo }}</td>
-        <td>{{ livro.autor }}</td>
-        <td>{{ livro.ano }}</td>
-        <td>{{ livro.get_tipo_display }}</td>
-        <td>{{ livro.get_categoria_display }}</td>
-        <td>{{ livro.disponivel|yesno:"Sim,Não" }}</td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="6">Nenhum livro encontrado.</td></tr>
-    {% endfor %}
-</table>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Ano</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Disponível</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for livro in livros %}
+                <tr>
+                    <td><strong>{{ livro.titulo }}</strong></td>
+                    <td>{{ livro.autor }}</td>
+                    <td>{{ livro.ano }}</td>
+                    <td>{{ livro.get_tipo_display }}</td>
+                    <td>{{ livro.get_categoria_display }}</td>
+                    <td>{{ livro.disponivel|yesno:"Sim,Não" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-msg">Nenhum livro encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 </body>
 </html>
